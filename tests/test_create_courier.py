@@ -1,7 +1,7 @@
 import requests
 import allure
 
-from helpers.generators import generate_random_string
+from helpers.generators import generate_courier_data
 from constants.constants import Url
 from helpers.helpers import delete_courier, courier_login
 
@@ -11,10 +11,11 @@ class TestCreateCourier:
 
     @allure.title("Проверка создания курьера без логина")
     def test_create_courier_without_login(self):
+        courier_data = generate_courier_data()
         payload = {
             "login": "",
-            "password": generate_random_string(10),
-            "firstName": generate_random_string(10),
+            "password": courier_data["password"],
+            "first_name": courier_data["first_name"],
         }
         with allure.step("Пробуем создать курьера с пустым логином"):
             response = requests.post(
@@ -28,10 +29,11 @@ class TestCreateCourier:
 
     @allure.title("Проверка создания курьера без пароля")
     def test_create_courier_without_password(self):
+        courier_data = generate_courier_data()
         payload = {
-            "login": generate_random_string(10),
+            "login": courier_data["login"],
             "password": "",
-            "firstName": generate_random_string(10),
+            "first_name": courier_data["first_name"],
         }
         with allure.step("Пробуем создать курьера с пустым паролем"):
             response = requests.post(
@@ -47,10 +49,11 @@ class TestCreateCourier:
 
     @allure.title("Проверка создания курьера без имени")
     def test_create_courier_without_first_name(self):
+        courier_data = generate_courier_data()
         payload = {
-            "login": generate_random_string(10),
-            "password": generate_random_string(10),
-            "firstName": "",
+            "login": courier_data["login"],
+            "password": courier_data["password"],
+            "first_name": "",
         }
         with allure.step("Пробуем создать курьера с пустым именем"):
             response = requests.post(
@@ -65,11 +68,7 @@ class TestCreateCourier:
 
     @allure.title("Проверка создания курьера c корректными данными")
     def test_create_courier(self):
-        payload = {
-            "login": generate_random_string(10),
-            "password": generate_random_string(10),
-            "firstName": generate_random_string(10),
-        }
+        payload = generate_courier_data()
         with allure.step("Пробуем создать курьера с полным набором корректных данных"):
             response = requests.post(
                 f"{Url.service_url}{Url.create_courier_url}", data=payload
@@ -82,16 +81,15 @@ class TestCreateCourier:
 
     @allure.title("Проверка создания курьера c существующим логином")
     def test_create_courier_duplicate_login(self):
-        login = generate_random_string(10)
-        payload_1 = {
-            "login": login,
-            "password": generate_random_string(10),
-            "firstName": generate_random_string(10),
-        }
+
+        payload_1 = generate_courier_data()
+
+        courier2_data = generate_courier_data()
+
         payload_2 = {
-            "login": login,
-            "password": generate_random_string(10),
-            "firstName": generate_random_string(10),
+            "login": payload_1["login"],
+            "password": courier2_data["password"],
+            "first_name": courier2_data["first_name"],
         }
         with allure.step(
             "Пробуем создать первого курьера с полным набором корректных данных"
